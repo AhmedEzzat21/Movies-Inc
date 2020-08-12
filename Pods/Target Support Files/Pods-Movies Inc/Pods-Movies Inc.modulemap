@@ -1,0 +1,6 @@
+framework module Pods_Movies_Inc {
+  umbrella header "Pods-Movies Inc-umbrella.h"
+
+  export *
+  module * { export * }
+}
