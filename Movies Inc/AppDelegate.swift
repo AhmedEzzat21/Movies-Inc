@@ -7,31 +7,86 @@
 //
 
 import UIKit
+import CoreData
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-
+    var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        setupAppearance()
+        setupWindow()
+        setupObservers()
+        statuesBarStyle()
+        
+          
         return true
     }
-
-    // MARK: UISceneSession Lifecycle
-
-    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
-        // Called when a new scene session is being created.
-        // Use this method to select a configuration to create the new scene with.
-        return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+    func statuesBarStyle(){
+        let statusBar = UIView(frame: (UIApplication.shared.keyWindow?.windowScene?.statusBarManager?.statusBarFrame)!)
+                  statusBar.backgroundColor = ColorPalette.blue
+                  UIApplication.shared.keyWindow?.addSubview(statusBar)
+              
     }
 
-    func application(_ application: UIApplication, didDiscardSceneSessions sceneSessions: Set<UISceneSession>) {
-        // Called when the user discards a scene session.
-        // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
-        // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
+    
+    func setupAppearance() {
+        let navigationBarAppearance = UINavigationBar.appearance()
+        navigationBarAppearance.barTintColor = ColorPalette.blue
+        navigationBarAppearance.tintColor = ColorPalette.black
+        navigationBarAppearance.isTranslucent = true
+        navigationBarAppearance.shadowImage = UIImage()
+        navigationBarAppearance.backgroundColor = ColorPalette.blue
+        navigationBarAppearance.titleTextAttributes = [NSAttributedString.Key.foregroundColor : ColorPalette.black]
+        navigationBarAppearance.setBackgroundImage(UIImage(), for: .default)
+        
+        let tabBarAppearance = UITabBar.appearance()
+        tabBarAppearance.barTintColor = ColorPalette.blue
+        tabBarAppearance.tintColor = ColorPalette.black
+        tabBarAppearance.isTranslucent = true
+        tabBarAppearance.shadowImage = UIImage()
+        tabBarAppearance.backgroundColor = ColorPalette.blue
+        
+        UISearchBar.appearance().backgroundColor = ColorPalette.blue
     }
-
-
+    
+    func setupWindow() {
+        window = UIWindow(frame: UIScreen.main.bounds)
+        window?.tintColor = ColorPalette.black
+        
+        let movieApi = MovieApi()
+        
+        let popularViewController = PopularViewController(movieApi: movieApi)
+        popularViewController.tabBarItem = UITabBarItem(title: "Popular", image: #imageLiteral(resourceName: "list_icon"), tag: 0)
+        let popularNavigationController = UINavigationController(rootViewController: popularViewController)
+        
+        let favoritesViewController = FavoritesViewController()
+        favoritesViewController.tabBarItem = UITabBarItem(title: "Favorites", image: #imageLiteral(resourceName: "favorite_empty_icon"), tag: 1)
+        let favoritesNavigationController = UINavigationController(rootViewController: favoritesViewController)
+        
+        let rootViewController = RootViewController(popularNavigationController: popularNavigationController, favoritesNavigationController: favoritesNavigationController)
+        
+        window?.rootViewController = rootViewController
+        window?.makeKeyAndVisible()
+    }
+    
+    func setupObservers() {
+        NotificationCenter.default.addObserver(forName: .onMovieFavorited, object: nil, queue: nil) { (notification) in
+            if let movie = notification.userInfo?["movie"] as? Movie {
+                var cachedMovies = Movie.getCachedMovies()
+                
+                if let isFavorite = movie.isFavorite, isFavorite {
+                    cachedMovies.append(movie)
+                } else {
+                    if let index = cachedMovies.index(where: { $0 == movie }) {
+                        cachedMovies.remove(at: index)
+                    }
+                }
+                
+                Movie.saveCachedMovies(cachedMovies)
+            }
+        }
+    }
 }
 

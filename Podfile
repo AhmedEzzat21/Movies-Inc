@@ -4,11 +4,8 @@
 target 'Movies Inc' do
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
-pod 'RxSwift',    '~> 4.0'
-pod 'RxCocoa',    '~> 4.0'
-pod 'Alamofire'
-pod 'Moya/RxSwift', '~> 12.0'
-pod 'Kingfisher'
+pod 'Kingfisher', '~> 4.0'
+pod 'Cache' , '~> 4.0'
 
   # Pods for Movies Inc
 
