@@ -1,4 +1,4 @@
-# Movies-inc - TheMovieDB iOS Swift app #
+# Movies-inc
 
 ## What is
 A simple app about popular movies using [TheMovieDB] [API] (https://developers.themoviedb.org/3/getting-started/introduction) (https://www.themoviedb.org/?language=en)
